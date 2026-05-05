@@ -1,0 +1,211 @@
+version: "3.9"
+
+# ═══════════════════════════════════════════════════════════════
+# Price Monitor Bot — Docker Compose (Produção)
+#
+# SERVIÇOS:
+#   redis        → broker de mensagens e cache
+#   api          → FastAPI (recebe requests HTTP)
+#   worker-high  → Celery worker fila high_priority (alertas, Premium)
+#   worker-scraping → Celery worker fila scraping (verificação de preços)
+#   worker-notif → Celery worker fila notifications (Telegram, email)
+#   worker-maint → Celery worker fila maintenance (limpeza, expiração)
+#   beat         → Celery Beat (agenda tasks periódicas)
+#   flower       → Dashboard visual do Celery (monitoramento)
+#   nginx        → Proxy reverso (HTTPS, load balancing)
+#
+# PARA RODAR:
+#   docker compose up -d
+#
+# PARA ESCALAR WORKERS:
+#   docker compose up -d --scale worker-scraping=3
+#
+# LOGS:
+#   docker compose logs -f worker-scraping
+#
+# MONITORAMENTO:
+#   Flower: http://localhost:5555
+#   API docs: http://localhost/docs
+# ═══════════════════════════════════════════════════════════════
+
+x-common-env: &common-env
+  DATABASE_URL: ${DATABASE_URL:-sqlite:///./price_monitor.db}
+  REDIS_URL: redis://redis:6379/0
+  REDIS_CACHE_URL: redis://redis:6379/1
+  REDIS_RATE_LIMIT_URL: redis://redis:6379/2
+  AMAZON_AFFILIATE_TAG: ${AMAZON_AFFILIATE_TAG:-seutag-20}
+  TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+  TELEGRAM_CHANNEL_ID: ${TELEGRAM_CHANNEL_ID:-}
+  JWT_SECRET_KEY: ${JWT_SECRET_KEY:-TROQUE_EM_PRODUCAO}
+  MERCADOPAGO_ACCESS_TOKEN: ${MERCADOPAGO_ACCESS_TOKEN:-}
+  STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+  BASE_URL: ${BASE_URL:-http://localhost}
+  USE_MOCK: ${USE_MOCK:-false}
+
+x-worker-base: &worker-base
+  build: .
+  restart: unless-stopped
+  environment:
+    <<: *common-env
+  depends_on:
+    redis:
+      condition: service_healthy
+  volumes:
+    - ./price_monitor.db:/app/price_monitor.db  # compartilha o banco SQLite
+  networks:
+    - app-network
+
+services:
+
+  # ── Redis ─────────────────────────────────────────────────
+  redis:
+    image: redis:7.2-alpine
+    restart: unless-stopped
+    command: >
+      redis-server
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --save 60 1
+      --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+    # Em produção: expor apenas internamente (sem ports)
+
+  # ── API FastAPI ───────────────────────────────────────────
+  api:
+    build: .
+    restart: unless-stopped
+    command: >
+      uvicorn main:app
+      --host 0.0.0.0
+      --port 8000
+      --workers 2
+      --loop uvloop
+      --http httptools
+    environment:
+      <<: *common-env
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./price_monitor.db:/app/price_monitor.db
+      - ./frontend:/app/frontend
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Worker: Alta Prioridade (alertas + Premium) ───────────
+  worker-high:
+    <<: *worker-base
+    command: >
+      celery -A app.worker.celery_app worker
+      --queues=high_priority
+      --concurrency=4
+      --loglevel=info
+      --hostname=worker-high@%h
+    environment:
+      <<: *common-env
+      WORKER_TYPE: high_priority
+
+  # ── Worker: Scraping (verificação de preços) ──────────────
+  # Este é o worker mais pesado — pode escalar:
+  #   docker compose up -d --scale worker-scraping=5
+  worker-scraping:
+    <<: *worker-base
+    command: >
+      celery -A app.worker.celery_app worker
+      --queues=scraping
+      --concurrency=8
+      --loglevel=info
+      --hostname=worker-scraping@%h
+      --max-tasks-per-child=100
+    environment:
+      <<: *common-env
+      WORKER_TYPE: scraping
+
+  # ── Worker: Notificações (Telegram, email) ────────────────
+  worker-notifications:
+    <<: *worker-base
+    command: >
+      celery -A app.worker.celery_app worker
+      --queues=notifications
+      --concurrency=4
+      --loglevel=info
+      --hostname=worker-notif@%h
+    environment:
+      <<: *common-env
+      WORKER_TYPE: notifications
+
+  # ── Worker: Manutenção (limpeza, expiração de planos) ─────
+  worker-maintenance:
+    <<: *worker-base
+    command: >
+      celery -A app.worker.celery_app worker
+      --queues=maintenance
+      --concurrency=2
+      --loglevel=info
+      --hostname=worker-maint@%h
+    environment:
+      <<: *common-env
+      WORKER_TYPE: maintenance
+
+  # ── Celery Beat (agendador de tasks periódicas) ───────────
+  # Roda APENAS UMA instância — duplicar causa tasks duplicadas!
+  beat:
+    <<: *worker-base
+    command: >
+      celery -A app.worker.celery_app beat
+      --loglevel=info
+      --scheduler celery.beat:PersistentScheduler
+    volumes:
+      - ./price_monitor.db:/app/price_monitor.db
+      - beat_data:/app/celerybeat-schedule
+
+  # ── Flower (Dashboard de Monitoramento) ───────────────────
+  flower:
+    <<: *worker-base
+    command: >
+      celery -A app.worker.celery_app flower
+      --port=5555
+      --basic_auth=${FLOWER_USER:-admin}:${FLOWER_PASSWORD:-admin123}
+      --url_prefix=flower
+    ports:
+      - "5555:5555"
+    environment:
+      <<: *common-env
+
+  # ── Nginx (Proxy Reverso) ─────────────────────────────────
+  nginx:
+    image: nginx:1.25-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deploy/ssl:/etc/nginx/ssl:ro         # certs SSL (Let's Encrypt)
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - api
+    networks:
+      - app-network
+
+volumes:
+  redis_data:
+  beat_data:
+  nginx_logs:
+
+networks:
+  app-network:
+    driver: bridge
