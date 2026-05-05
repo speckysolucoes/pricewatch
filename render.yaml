@@ -1,0 +1,119 @@
+# ════════════════════════════════════════════════════════════
+# render.yaml — Configuração de Deploy no Render
+#
+# O Render lê este arquivo e cria todos os serviços
+# automaticamente quando você conecta o repositório.
+#
+# SERVIÇOS CRIADOS:
+#   web      → API FastAPI + frontend (sempre rodando)
+#   worker   → Celery worker (plano pago — opcional no início)
+#   redis    → Redis como broker (plano pago — opcional no início)
+#
+# PARA COMEÇAR GRÁTIS:
+#   Use apenas o serviço "web" com USE_MOCK=true e APScheduler.
+#   Quando crescer e precisar de escala, ative os workers.
+#
+# DOCUMENTAÇÃO:
+#   https://render.com/docs/blueprint-spec
+# ════════════════════════════════════════════════════════════
+
+services:
+
+  # ── API + Frontend (serviço principal) ───────────────────
+  - type: web
+    name: pricewatch-api
+    runtime: python
+    region: oregon          # oregon é o mais próximo do Brasil com plano free
+    plan: free              # troque para "starter" ($7/mês) quando precisar
+    branch: main
+
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+
+    # Variáveis de ambiente
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite:///./price_monitor.db
+
+      - key: USE_MOCK
+        value: "false"
+
+      - key: CHECK_INTERVAL_MINUTES
+        value: "30"
+
+      # ── OBRIGATÓRIAS: configure no painel do Render ──────
+      - key: JWT_SECRET_KEY
+        generateValue: true        # Render gera automaticamente 🎉
+
+      - key: BASE_URL
+        value: https://pricewatch-api.onrender.com  # troque pelo seu URL real
+
+      # ── OPCIONAIS: configure quando tiver as contas ──────
+      - key: AMAZON_AFFILIATE_TAG
+        value: ""                  # ex: seutag-20
+
+      - key: TELEGRAM_BOT_TOKEN
+        value: ""                  # token do @BotFather
+
+      - key: TELEGRAM_CHANNEL_ID
+        value: ""                  # @seucanal ou -100123456789
+
+      - key: MERCADOPAGO_ACCESS_TOKEN
+        value: ""
+
+      - key: MERCADOPAGO_WEBHOOK_SECRET
+        value: ""
+
+      - key: STRIPE_SECRET_KEY
+        value: ""
+
+      - key: INSTAGRAM_USERNAME
+        value: ""
+
+      - key: INSTAGRAM_PASSWORD
+        value: ""
+
+      - key: INSTAGRAM_BOT_HANDLE
+        value: "@SeuBotAqui"
+
+    # Health check — Render monitora este endpoint
+    healthCheckPath: /
+
+  # ══════════════════════════════════════════════════════════
+  # OPCIONAL — só ative quando sair do plano free
+  # Exige Redis (abaixo) e plano pago no Render ($7+/mês)
+  # ══════════════════════════════════════════════════════════
+
+  # - type: worker
+  #   name: pricewatch-worker-scraping
+  #   runtime: python
+  #   plan: starter
+  #   branch: main
+  #   buildCommand: pip install -r requirements.txt
+  #   startCommand: celery -A app.worker.celery_app worker --queues=scraping,high_priority --concurrency=4 --loglevel=info
+  #   envVars:
+  #     - key: REDIS_URL
+  #       fromService:
+  #         name: pricewatch-redis
+  #         type: redis
+  #         property: connectionString
+  #     - fromGroup: pricewatch-env   # grupo de variáveis compartilhado
+
+  # - type: worker
+  #   name: pricewatch-beat
+  #   runtime: python
+  #   plan: starter
+  #   branch: main
+  #   buildCommand: pip install -r requirements.txt
+  #   startCommand: celery -A app.worker.celery_app beat --loglevel=info
+  #   envVars:
+  #     - key: REDIS_URL
+  #       fromService:
+  #         name: pricewatch-redis
+  #         type: redis
+  #         property: connectionString
+
+  # - type: redis
+  #   name: pricewatch-redis
+  #   plan: starter             # $10/mês
+  #   maxmemoryPolicy: allkeys-lru
