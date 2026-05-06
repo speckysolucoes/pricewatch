@@ -212,7 +212,7 @@ def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:
     if not user:
         # Executa verify_password mesmo com usuário inexistente
         # para evitar timing attacks
-        verify_password("dummy", "$2b$12$dummy_hash_to_prevent_timing_attack")
+        verify_password("dummy", "$2b$12$SWrDVdtM5eHZZbyd.AixbuaymjTlHlYL4yY25BVY.xXSbRm.Komay")
         return None
 
     if not user.hashed_password:
