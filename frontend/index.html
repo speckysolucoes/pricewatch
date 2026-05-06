@@ -1126,25 +1126,8 @@ function AuthPage({ onAuth }) {
         </div>
         <div className="auth-title">{mode === 'login' ? 'Entrar' : 'Criar conta'}</div>
         <div className="auth-sub">
-          {mode === 'login'
-            ? 'Monitoramos preços por você e avisamos quando cair.'
-            : 'Crie sua conta grátis e comece a economizar hoje.'}
+          {mode === 'login' ? 'Monitoramos preços por você e avisamos quando cair.' : 'Crie sua conta grátis e comece a economizar hoje.'}
         </div>
-        {mode === 'login' && (
-          <div style={{display:'flex', gap:6, flexWrap:'wrap', marginBottom:16}}>
-            {[
-              {bg:'rgba(108,92,231,0.12)', border:'rgba(108,92,231,0.3)', color:'#6c5ce7', text:'🔔 Alertas automáticos'},
-              {bg:'rgba(0,217,126,0.1)',   border:'rgba(0,217,126,0.3)',   color:'#00d97e', text:'📦 Amazon + ML'},
-              {bg:'rgba(255,209,102,0.1)', border:'rgba(255,209,102,0.3)', color:'#ffd166', text:'🔗 Link afiliado'},
-            ].map(b => (
-              <span key={b.text} style={{
-                background:b.bg, border:`0.5px solid ${b.border}`,
-                borderRadius:6, padding:'3px 8px', fontSize:11,
-                color:b.color, fontWeight:600,
-              }}>{b.text}</span>
-            ))}
-          </div>
-        )}
         <form onSubmit={submit}>
           {mode === 'register' && (
             <div className="form-group">
@@ -1160,26 +1143,7 @@ function AuthPage({ onAuth }) {
             <label className="form-label">Senha</label>
             <input className="form-input" type="password" placeholder={mode === 'register' ? 'Mínimo 6 caracteres' : '••••••••'} value={form.password} onChange={set('password')} required />
           </div>
-          {error && (
-            <div className="error-msg" style={{lineHeight:1.5}}>
-              ⚠️ {error}
-              {error.includes('30 segundos') && (
-                <div style={{marginTop:8}}>
-                  <button
-                    type="button"
-                    onClick={() => { setError(''); setTimeout(() => document.querySelector('form button[type=submit]')?.click(), 500); }}
-                    style={{
-                      background:'var(--accent)', color:'white', border:'none',
-                      borderRadius:6, padding:'6px 14px', fontSize:12,
-                      cursor:'pointer', marginTop:4
-                    }}
-                  >
-                    🔄 Tentar novamente
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+          {error && <div className="error-msg">⚠️ {error}</div>}
           <div style={{marginTop: 24}}>
             <button className="btn btn-primary" type="submit" disabled={loading}>
               {loading ? <><div className="spinner" /> Aguarde...</> : (mode === 'login' ? 'Entrar' : 'Criar conta')}
@@ -1311,59 +1275,44 @@ function DashboardPage() {
   if (loading) return <div className="loading"><div className="spinner"/>Carregando...</div>;
   if (!stats) return <div className="loading">Erro ao carregar dados</div>;
 
+  const isNew = stats.total_products === 0;
   const statusCards = [
-    { label:'Ativos', value: stats.active_products, cls:'green', icon:'🟢' },
-    { label:'Alertados', value: stats.alerted_products, cls:'yellow', icon:'🔔' },
-    { label:'Alertas (7d)', value: stats.alerts_last_7_days, cls:'accent', icon:'📨' },
+    { label:'Ativos',      value: stats.active_products,      cls:'green',  icon:'🟢' },
+    { label:'Alertados',   value: stats.alerted_products,     cls:'yellow', icon:'🔔' },
+    { label:'Alertas 7d',  value: stats.alerts_last_7_days,   cls:'accent', icon:'📨' },
     { label:'Economizado', value: `R$${stats.total_saved.toFixed(0)}`, cls:'green', icon:'💚' },
   ];
 
-  // Usuário novo = sem nenhum produto ainda
-  const isNewUser = stats.total_products === 0;
+  const onboardingSteps = [
+    {n:'1️⃣', bg:'rgba(108,92,231,0.1)', t:'Cole o link do produto',       d:'Amazon, Mercado Livre, Shopee e Magazine Luiza'},
+    {n:'2️⃣', bg:'rgba(0,217,126,0.1)',   t:'Defina o preço que quer pagar', d:'Ou avise quando cair X% do preço atual'},
+    {n:'3️⃣', bg:'rgba(255,209,102,0.1)', t:'Receba o alerta',              d:'No Telegram assim que o preço cair'},
+  ];
 
   return (
     <div>
       <div className="page-header">
         <div className="page-title">Olá, {user?.name?.split(' ')[0]} 👋</div>
-        <div className="page-sub">
-          {isNewUser ? 'Bem-vindo ao PriceWatch!' : 'Aqui está o resumo do seu monitoramento'}
-        </div>
+        <div className="page-sub">{isNew ? 'Bem-vindo ao PriceWatch!' : 'Aqui está o resumo do seu monitoramento'}</div>
       </div>
       <div className="page-body">
 
-        {/* Banner de onboarding para usuário novo */}
-        {isNewUser && (
-          <div style={{
-            background:'linear-gradient(135deg, rgba(108,92,231,0.12) 0%, rgba(0,217,126,0.08) 100%)',
-            border:'1px solid rgba(108,92,231,0.3)', borderRadius:'var(--radius-lg)',
-            padding:'20px 24px', marginBottom:24,
-          }}>
-            <div style={{fontFamily:'var(--font-head)', fontSize:16, fontWeight:700, color:'var(--text)', marginBottom:8}}>
-              🚀 Como começar em 3 passos
-            </div>
-            <div style={{fontSize:13, color:'var(--text-dim)', lineHeight:1.6, marginBottom:16}}>
-              Cole o link de qualquer produto da Amazon ou Mercado Livre, defina o preço que quer pagar, e a gente avisa quando chegar lá.
-            </div>
-            {[
-              {icon:'1️⃣', bg:'rgba(108,92,231,0.1)', title:'Cole o link do produto', desc:'Amazon, Mercado Livre, Shopee e Magazine Luiza'},
-              {icon:'2️⃣', bg:'rgba(0,217,126,0.1)',   title:'Defina o preço que quer pagar', desc:'Ou avise quando cair X% do preço atual'},
-              {icon:'3️⃣', bg:'rgba(255,209,102,0.1)', title:'Receba o alerta', desc:'No Telegram assim que o preço cair'},
-            ].map(s => (
-              <div key={s.title} style={{display:'flex', gap:12, alignItems:'flex-start', marginBottom:12}}>
-                <div style={{width:32, height:32, borderRadius:10, background:s.bg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, flexShrink:0}}>{s.icon}</div>
-                <div>
-                  <div style={{fontSize:13, fontWeight:600, color:'var(--text)', marginBottom:2}}>{s.title}</div>
-                  <div style={{fontSize:12, color:'var(--text-dim)'}}>{s.desc}</div>
+        {isNew && (
+          <div style={{background:'linear-gradient(135deg,rgba(108,92,231,0.12),rgba(0,217,126,0.08))',border:'1px solid rgba(108,92,231,0.3)',borderRadius:'var(--radius-lg)',padding:'20px 24px',marginBottom:24}}>
+            <div style={{fontSize:15,fontWeight:700,color:'var(--text)',marginBottom:8}}>🚀 Como começar em 3 passos</div>
+            <div style={{fontSize:13,color:'var(--text-dim)',lineHeight:1.6,marginBottom:16}}>Cole o link de qualquer produto da Amazon ou Mercado Livre, defina o preço que quer pagar, e a gente avisa quando chegar lá.</div>
+            <div style={{marginBottom:16}}>
+              {onboardingSteps.map(s => (
+                <div key={s.t} style={{display:'flex',gap:12,alignItems:'flex-start',marginBottom:12}}>
+                  <div style={{width:30,height:30,borderRadius:8,background:s.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,flexShrink:0}}>{s.n}</div>
+                  <div>
+                    <div style={{fontSize:13,fontWeight:600,color:'var(--text)',marginBottom:2}}>{s.t}</div>
+                    <div style={{fontSize:12,color:'var(--text-dim)'}}>{s.d}</div>
+                  </div>
                 </div>
-              </div>
-            ))}
-            <button
-              className="btn btn-primary"
-              style={{marginTop:4}}
-              onClick={() => document.querySelector('.btn-add-desktop')?.click()}
-            >
-              + Adicionar primeiro produto
-            </button>
+              ))}
+            </div>
+            <button className="btn btn-primary" style={{width:'auto'}} onClick={() => document.querySelector('.btn-add-desktop')?.click()}>+ Adicionar primeiro produto</button>
           </div>
         )}
 
@@ -1377,7 +1326,6 @@ function DashboardPage() {
           </div>
         )}
 
-        {!isNewUser && (
         <div className="stats-grid">
           {statusCards.map(c => (
             <div key={c.label} className={`stat-card ${c.cls}`}>
@@ -1387,10 +1335,8 @@ function DashboardPage() {
             </div>
           ))}
         </div>
-        )}
 
-        {!isNewUser && <div className="two-col">
-          {/* Alertas recentes */}
+        <div className="two-col">
           <div className="card">
             <div className="card-header">
               <div className="card-title">🔔 Alertas Recentes</div>
@@ -1400,11 +1346,9 @@ function DashboardPage() {
                 ? <div className="empty"><div className="empty-icon">🔕</div><div className="empty-sub">Nenhum alerta ainda</div></div>
                 : stats.recent_alerts.map(a => (
                   <div key={a.id} className="alert-item">
-                    <div className={`alert-icon ${a.alert_type === 'promotion' ? 'promo' : 'drop'}`}>
-                      {a.alert_type === 'promotion' ? '🔥' : '📉'}
-                    </div>
-                    <div style={{flex:1, minWidth:0}}>
-                      <div className="alert-name" style={{overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{a.product_name}</div>
+                    <div className={`alert-icon ${a.alert_type === 'promotion' ? 'promo' : 'drop'}`}>{a.alert_type === 'promotion' ? '🔥' : '📉'}</div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div className="alert-name" style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{a.product_name}</div>
                       <div className="alert-meta">{fmtDate(a.sent_at)}{a.discount_percentage ? ` · -${a.discount_percentage}%` : ''}</div>
                     </div>
                     <div className="alert-price">
@@ -1416,8 +1360,6 @@ function DashboardPage() {
               }
             </div>
           </div>
-
-          {/* Melhores oportunidades */}
           <div className="card">
             <div className="card-header">
               <div className="card-title">🔥 Maiores Quedas Atuais</div>
@@ -1428,12 +1370,12 @@ function DashboardPage() {
                 : stats.best_deals.map(d => (
                   <div key={d.id} className="alert-item">
                     <div style={{fontSize:20}}>{storeEmoji(d.store)}</div>
-                    <div style={{flex:1, minWidth:0}}>
-                      <div className="alert-name" style={{overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{d.name}</div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div className="alert-name" style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{d.name}</div>
                       <div className="alert-meta">{(d.store||'').toUpperCase()}</div>
                     </div>
-                    <div style={{display:'flex', flexDirection:'column', alignItems:'flex-end', gap:4}}>
-                      <div className="mono" style={{color:'var(--green)', fontSize:14}}>{fmtPrice(d.current_price)}</div>
+                    <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:4}}>
+                      <div className="mono" style={{color:'var(--green)',fontSize:14}}>{fmtPrice(d.current_price)}</div>
                       <div className="discount-tag">-{d.discount_pct}%</div>
                     </div>
                   </div>
@@ -1443,36 +1385,23 @@ function DashboardPage() {
           </div>
         </div>
 
-        </div>}
-
-        {/* Limite do plano */}
         <div className="card">
-          <div className="card-body" style={{display:'flex', alignItems:'center', gap:20}}>
+          <div className="card-body" style={{display:'flex',alignItems:'center',gap:20}}>
             <div>
-              <div style={{fontSize:12, color:'var(--text-dim)', textTransform:'uppercase', letterSpacing:'0.6px', marginBottom:6}}>Uso do Plano {stats.plan.toUpperCase()}</div>
-              <div style={{display:'flex', alignItems:'center', gap:8}}>
-                <div style={{
-                  height:6, width:200, background:'var(--bg3)', borderRadius:3, overflow:'hidden',
-                }}>
-                  <div style={{
-                    height:'100%',
-                    width:`${Math.min((stats.total_products / stats.max_products) * 100, 100)}%`,
-                    background: stats.total_products >= stats.max_products ? 'var(--red)' : 'var(--accent)',
-                    borderRadius:3, transition:'width 0.5s ease',
-                  }} />
+              <div style={{fontSize:12,color:'var(--text-dim)',textTransform:'uppercase',letterSpacing:'0.6px',marginBottom:6}}>Uso do Plano {stats.plan.toUpperCase()}</div>
+              <div style={{display:'flex',alignItems:'center',gap:8}}>
+                <div style={{height:6,width:200,background:'var(--bg3)',borderRadius:3,overflow:'hidden'}}>
+                  <div style={{height:'100%',width:`${Math.min((stats.total_products/stats.max_products)*100,100)}%`,background:stats.total_products>=stats.max_products?'var(--red)':'var(--accent)',borderRadius:3,transition:'width 0.5s ease'}} />
                 </div>
-                <span style={{fontSize:13, color:'var(--text-dim)'}}>
-                  {stats.total_products} / {stats.max_products === 9999 ? '∞' : stats.max_products} produtos
-                </span>
+                <span style={{fontSize:13,color:'var(--text-dim)'}}>{stats.total_products} / {stats.max_products===9999?'∞':stats.max_products} produtos</span>
               </div>
             </div>
             {stats.plan === 'free' && (
-              <button className="btn btn-ghost btn-sm" style={{marginLeft:'auto', color:'var(--yellow)', borderColor:'rgba(255,209,102,0.3)'}}>
-                ⚡ Upgrade para Premium
-              </button>
+              <button className="btn btn-ghost btn-sm" style={{marginLeft:'auto',color:'var(--yellow)',borderColor:'rgba(255,209,102,0.3)'}}>⚡ Upgrade para Premium</button>
             )}
           </div>
         </div>
+
       </div>
     </div>
   );
@@ -1515,45 +1444,29 @@ function AddProductModal({ userId, onClose, onAdded, toast }) {
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal">
         <div className="modal-title">📦 Monitorar produto</div>
-        <div style={{fontSize:13, color:'var(--text-dim)', marginBottom:16, marginTop:-4}}>
-          Cole o link e diga quando quer ser avisado
-        </div>
         <form onSubmit={submit}>
           <div className="form-group">
-            <label className="form-label">Nome do produto</label>
-            <input className="form-input" placeholder="Ex: Notebook Gamer, iPhone 16..." value={form.name} onChange={set('name')} required />
+            <label className="form-label">Nome do Produto</label>
+            <input className="form-input" placeholder="Ex: Notebook Gamer XYZ" value={form.name} onChange={set('name')} required />
           </div>
           <div className="form-group">
             <label className="form-label">Link do produto</label>
             <input className="form-input" type="url" placeholder="https://www.amazon.com.br/dp/..." value={form.url} onChange={set('url')} required />
-            <div style={{fontSize:11, color:'var(--text-dim)', marginTop:4}}>
-              ✅ Amazon, Mercado Livre, Shopee e Magazine Luiza
-            </div>
-          </div>
-          <div style={{
-            background:'var(--bg3)', border:'1px solid var(--border)',
-            borderRadius:'var(--radius)', padding:'10px 14px',
-            fontSize:12, color:'var(--text-dim)', lineHeight:1.5, marginBottom:16,
-          }}>
-            💡 <strong style={{color:'var(--text)'}}>Como pegar o link?</strong> No app da loja, abra o produto, toque em Compartilhar e copie o link.
           </div>
           <div className="two-col" style={{marginBottom:0}}>
             <div className="form-group">
-              <label className="form-label">Me avisa quando chegar em</label>
-              <input className="form-input" type="number" step="0.01" min="0.01" placeholder="R$ 0,00" value={form.target_price} onChange={set('target_price')} />
-              <div style={{fontSize:11, color:'var(--text-dim)', marginTop:4, lineHeight:1.4}}>Ex: produto custa R$ 3.499, você quer pagar R$ 2.999</div>
+              <label className="form-label">Me avisa quando chegar em (R$)</label>
+              <input className="form-input" type="number" step="0.01" min="0.01" placeholder="299,90" value={form.target_price} onChange={set('target_price')} />
             </div>
             <div className="form-group">
-              <label className="form-label">Ou se cair mais de</label>
-              <div style={{display:'flex', gap:6, alignItems:'center'}}>
-                <input className="form-input" type="number" min="1" max="100" placeholder="0" value={form.alert_percentage} onChange={set('alert_percentage')} style={{flex:1}} />
-                <span style={{fontSize:14, color:'var(--text-dim)', fontWeight:600, flexShrink:0}}>%</span>
-              </div>
-              <div style={{fontSize:11, color:'var(--text-dim)', marginTop:4, lineHeight:1.4}}>Ex: 15 = avisa quando cair 15%</div>
+              <label className="form-label">Ou se cair mais de (%)</label>
+              <input className="form-input" type="number" min="1" max="100" placeholder="Ex: 10" value={form.alert_percentage} onChange={set('alert_percentage')} />
             </div>
           </div>
-          <div style={{fontSize:12, color:'var(--text-dim)', marginTop:4, marginBottom:16}}>
-            Pode usar os dois juntos!
+          <div style={{fontSize:12, color:'var(--text-dim)', marginTop:-8, marginBottom:16, lineHeight:1.5}}>
+            💡 <strong>Preço alvo:</strong> avisa quando chegar nesse valor.<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;<strong>Alertar se cair %:</strong> avisa quando cair X% do preço atual.<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;Pode usar os dois juntos!
           </div>
           {error && <div className="error-msg">⚠️ {error}</div>}
           <div className="modal-actions">
@@ -1712,80 +1625,54 @@ function ProductsPage() {
               <div className="empty-sub">{search ? 'Tente outro termo' : 'Clique em "+ Adicionar" para começar'}</div>
             </div>
           : <div>
-              {/* Cards de atenção para status especiais */}
               {filtered.filter(p => {
-                const s = typeof p.status === 'string' ? p.status : String(p.status).split('.').pop().toLowerCase();
-                return s === 'alerted' || s === 'error';
+                const s = (typeof p.status==='string'?p.status:String(p.status).split('.').pop()).toLowerCase();
+                return s==='alerted' || s==='error';
               }).map(p => {
-                const status = typeof p.status === 'string' ? p.status : String(p.status).split('.').pop().toLowerCase();
-                const isAlerted = status === 'alerted';
+                const s = (typeof p.status==='string'?p.status:String(p.status).split('.').pop()).toLowerCase();
+                const isA = s==='alerted';
                 return (
-                  <div key={`special-${p.id}`} style={{
-                    background: isAlerted ? 'rgba(255,209,102,0.06)' : 'rgba(255,77,106,0.06)',
-                    border: `1px solid ${isAlerted ? 'rgba(255,209,102,0.3)' : 'rgba(255,77,106,0.3)'}`,
-                    borderRadius:'var(--radius-lg)', padding:'14px 18px', marginBottom:10,
-                  }}>
-                    <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:6}}>
-                      <div style={{fontSize:13, fontWeight:600, color:'var(--text)'}}>{storeEmoji(p.store)} {p.name.slice(0,45)}{p.name.length > 45 ? '…' : ''}</div>
-                      {statusBadge(status)}
+                  <div key={'sc'+p.id} style={{background:isA?'rgba(255,209,102,0.06)':'rgba(255,77,106,0.06)',border:'1px solid '+(isA?'rgba(255,209,102,0.3)':'rgba(255,77,106,0.3)'),borderRadius:'var(--radius-lg)',padding:'14px 18px',marginBottom:10}}>
+                    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:6}}>
+                      <div style={{fontSize:13,fontWeight:600,color:'var(--text)',flex:1,minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{storeEmoji(p.store)} {p.name}</div>
+                      <div style={{flexShrink:0,marginLeft:8}}>{statusBadge(s)}</div>
                     </div>
-                    <div style={{fontSize:12, color:'var(--text-dim)', marginBottom:10, lineHeight:1.5}}>
-                      {isAlerted
-                        ? 'Preço alvo atingido! Aproveite enquanto está barato.'
-                        : 'Não conseguimos acessar este produto. Pode ter saído de estoque ou o link mudou.'}
-                    </div>
-                    <div style={{display:'flex', gap:8}}>
-                      {isAlerted && p.url_affiliate && (
-                        <a href={p.url_affiliate} target="_blank" rel="noopener noreferrer"
-                          style={{flex:1, background:'var(--yellow)', color:'#0a0a0f', borderRadius:'var(--radius)', padding:'7px 12px', textAlign:'center', fontSize:12, fontWeight:600, textDecoration:'none'}}>
-                          Ver produto →
-                        </a>
-                      )}
-                      <button
-                        onClick={async () => {
-                          try {
-                            await api.req('POST', `/products/${p.id}/reactivate`);
-                            load();
-                            toast('Produto reativado!', 'success');
-                          } catch(e) { toast(e.message, 'error'); }
-                        }}
-                        style={{background:'var(--bg3)', color:'var(--text-dim)', border:'1px solid var(--border)', borderRadius:'var(--radius)', padding:'7px 14px', fontSize:12, cursor:'pointer', ...(isAlerted ? {} : {flex:1})}}>
-                        {isAlerted ? 'Reativar' : '🔄 Tentar novamente'}
-                      </button>
+                    <div style={{fontSize:12,color:'var(--text-dim)',marginBottom:10,lineHeight:1.5}}>{isA?'Preço alvo atingido! Aproveite enquanto está barato.':'Não conseguimos acessar. O produto pode ter saído de estoque ou o link mudou.'}</div>
+                    <div style={{display:'flex',gap:8}}>
+                      {isA && p.url_affiliate && <a href={p.url_affiliate} target="_blank" rel="noopener noreferrer" style={{flex:1,background:'var(--yellow)',color:'#0a0a0f',borderRadius:'var(--radius)',padding:'7px 12px',textAlign:'center',fontSize:12,fontWeight:600,textDecoration:'none'}}>Ver produto →</a>}
+                      <button onClick={async e=>{e.stopPropagation();try{await api.checkNow(p.id);load();toast('Verificando...','success');}catch(er){toast(er.message,'error');}}} style={{flex:isA?0:1,background:'var(--bg3)',color:'var(--text-dim)',border:'1px solid var(--border)',borderRadius:'var(--radius)',padding:'7px 14px',fontSize:12,cursor:'pointer'}}>{isA?'Reativar':'Tentar novamente'}</button>
                     </div>
                   </div>
                 );
               })}
-
-              {/* Lista normal */}
               <div className="card">
                 <div className="product-list">
-                  {filtered.map((p, i) => {
-                    const status = typeof p.status === 'string' ? p.status : String(p.status).split('.').pop().toLowerCase();
-                    const discPct = p.initial_price && p.current_price
-                      ? ((1 - p.current_price/p.initial_price)*100).toFixed(1)
-                      : null;
-                    return (
-                      <div key={p.id} className="product-row" style={{borderBottom: i<filtered.length-1 ? '1px solid var(--border)' : 'none'}}
-                        onClick={() => setSelected(p)}>
-                        <div style={{minWidth:0}}>
-                          <div className="product-name">{storeEmoji(p.store)} {p.name}</div>
-                          <div className="product-store">{p.store || 'desconhecida'} · ID {p.id}</div>
-                        </div>
-                        <div style={{textAlign:'right'}}>
-                          <div className="price-current">{fmtPrice(p.current_price)}</div>
-                          {p.target_price && <div className="price-target">alvo {fmtPrice(p.target_price)}</div>}
-                        </div>
-                        {discPct && Number(discPct) > 0 && (
-                          <div className="discount-tag">-{discPct}%</div>
-                        )}
-                        {statusBadge(status)}
+                {filtered.map((p, i) => {
+                  const status = typeof p.status === 'string' ? p.status : String(p.status).split('.').pop().toLowerCase();
+                  const discPct = p.initial_price && p.current_price
+                    ? ((1 - p.current_price/p.initial_price)*100).toFixed(1)
+                    : null;
+                  return (
+                    <div key={p.id} className="product-row" style={{borderBottom: i<filtered.length-1 ? '1px solid var(--border)' : 'none'}}
+                      onClick={() => setSelected(p)}>
+                      <div style={{minWidth:0}}>
+                        <div className="product-name">{storeEmoji(p.store)} {p.name}</div>
+                        <div className="product-store">{p.store || 'desconhecida'} · ID {p.id}</div>
                       </div>
-                    );
-                  })}
-                </div>
+                      <div style={{textAlign:'right'}}>
+                        <div className="price-current">{fmtPrice(p.current_price)}</div>
+                        {p.target_price && <div className="price-target">alvo {fmtPrice(p.target_price)}</div>}
+                      </div>
+                      {discPct && Number(discPct) > 0 && (
+                        <div className="discount-tag">-{discPct}%</div>
+                      )}
+                      {statusBadge(status)}
+                    </div>
+                  );
+                })}
               </div>
             </div>
+          </div>
         }
       </div>
 
@@ -1816,37 +1703,10 @@ function AlertsPage() {
         {loading
           ? <div className="loading"><div className="spinner"/>Carregando...</div>
           : alerts.length === 0
-          ? <div>
-              <div className="empty">
-                <div className="empty-icon">🔕</div>
-                <div className="empty-title">Nenhum alerta ainda</div>
-                <div className="empty-sub" style={{maxWidth:320, margin:'0 auto 16px', lineHeight:1.6}}>
-                  Os alertas aparecem aqui quando um produto cair abaixo do preço que você definiu. Quanto mais produtos monitorar, mais chances de pegar uma oferta real.
-                </div>
-                <button className="btn btn-primary" style={{display:'inline-flex', width:'auto', margin:'0 auto'}}
-                  onClick={() => { const b = document.querySelector('.btn-add-desktop'); if(b) b.click(); }}>
-                  + Adicionar produto
-                </button>
-              </div>
-              {/* Exemplo visual de como um alerta aparece */}
-              <div style={{marginTop:24, opacity:0.4, pointerEvents:'none'}}>
-                <div style={{fontSize:11, color:'var(--text-dim)', textAlign:'center', marginBottom:8, fontStyle:'italic'}}>Exemplo de como vai aparecer:</div>
-                <div className="card">
-                  <div className="card-body">
-                    <div className="alert-item">
-                      <div className="alert-icon drop">📉</div>
-                      <div style={{flex:1}}>
-                        <div className="alert-name">iPhone 16e 128GB Preto</div>
-                        <div className="alert-meta">Hoje · Preço alvo atingido</div>
-                      </div>
-                      <div className="alert-price">
-                        <div className="new">{fmtPrice(2999)}</div>
-                        <div className="old">{fmtPrice(3499)}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          ? <div className="empty">
+              <div className="empty-icon">🔕</div>
+              <div className="empty-title">Nenhum alerta ainda</div>
+              <div className="empty-sub">Os alertas aparecem aqui quando um produto cair abaixo do preço que você definiu.</div>
             </div>
           : <div className="card">
               <div className="card-body">
@@ -2006,13 +1866,22 @@ function UpgradePage() {
     <div>
       <div className="page-header">
         <div className="page-title">⚡ Planos</div>
-        <div className="page-sub">
-          {billing
-            ? `Você está usando ${billing.current_product_count} de ${billing.max_products === 9999 ? '∞' : billing.max_products} produtos do plano ${billing.current_plan}`
-            : 'Escolha o plano ideal para você'}
-        </div>
+        <div className="page-sub">{billing?`Usando ${billing.current_product_count||0} de ${billing.max_products===9999?'∞':billing.max_products} produtos`:'Escolha o plano ideal para você'}</div>
       </div>
       <div className="page-body">
+
+        {billing && !billing.is_premium && billing.max_products !== 9999 && (
+          <div style={{marginBottom:20}}>
+            <div style={{display:'flex',justifyContent:'space-between',fontSize:12,color:'var(--text-dim)',marginBottom:6}}>
+              <span>Limite do plano gratuito</span>
+              <span style={{fontWeight:600,color:(billing.current_product_count||0)>=(billing.max_products||5)?'var(--red)':'var(--text)'}}>{billing.current_product_count||0} / {billing.max_products||5}</span>
+            </div>
+            <div style={{height:6,background:'var(--bg3)',borderRadius:3,overflow:'hidden'}}>
+              <div style={{height:'100%',width:Math.min(((billing.current_product_count||0)/(billing.max_products||5))*100,100)+'%',background:(billing.current_product_count||0)>=(billing.max_products||5)?'var(--red)':'var(--accent)',borderRadius:3,transition:'width 0.5s ease'}}></div>
+            </div>
+            {(billing.current_product_count||0)>=(billing.max_products||5) && <div style={{fontSize:12,color:'var(--red)',marginTop:6}}>⚠️ Limite atingido. Faça upgrade para adicionar mais produtos.</div>}
+          </div>
+        )}
 
         {/* Status atual */}
         {isPremium && (
@@ -2037,31 +1906,6 @@ function UpgradePage() {
             <button className="btn btn-danger btn-sm" onClick={cancelPlan} disabled={cancelling}>
               {cancelling ? <><div className="spinner"/>...</> : 'Cancelar'}
             </button>
-          </div>
-        )}
-
-        {/* Barra de progresso do limite */}
-        {billing && billing.current_plan === 'free' && billing.max_products !== 9999 && (
-          <div style={{marginBottom:20}}>
-            <div style={{display:'flex', justifyContent:'space-between', fontSize:12, color:'var(--text-dim)', marginBottom:6}}>
-              <span>Limite do plano gratuito</span>
-              <span style={{fontWeight:600, color: billing.current_product_count >= billing.max_products ? 'var(--red)' : 'var(--text)'}}>
-                {billing.current_product_count} / {billing.max_products}
-              </span>
-            </div>
-            <div style={{height:6, background:'var(--bg3)', borderRadius:3, overflow:'hidden'}}>
-              <div style={{
-                height:'100%',
-                width:`${Math.min((billing.current_product_count / billing.max_products) * 100, 100)}%`,
-                background: billing.current_product_count >= billing.max_products ? 'var(--red)' : 'var(--accent)',
-                borderRadius:3, transition:'width 0.5s ease',
-              }} />
-            </div>
-            {billing.current_product_count >= billing.max_products && (
-              <div style={{fontSize:12, color:'var(--red)', marginTop:6}}>
-                ⚠️ Limite atingido. Faça upgrade para adicionar mais produtos.
-              </div>
-            )}
           </div>
         )}
 
@@ -2094,19 +1938,13 @@ function UpgradePage() {
                   {plan.price.brl}
                   {plan.price.brl_raw > 0 && <span style={{fontSize:14, color:'var(--text-dim)', fontWeight:400}}>/mês</span>}
                 </div>
-                <div style={{color:'var(--text-dim)', fontSize:13, marginBottom: isPremiumPlan ? 8 : 20}}>{plan.description}</div>
-
-                {isPremiumPlan && (
-                  <div style={{fontSize:12, color:'var(--text-dim)', marginBottom:16, lineHeight:1.5, background:'var(--bg3)', borderRadius:'var(--radius)', padding:'10px 14px'}}>
-                    💡 Se você economizar <strong style={{color:'var(--text)'}}>R$ 200 em uma compra</strong>, já pagou 10 meses de assinatura.
-                  </div>
-                )}
+                <div style={{color:'var(--text-dim)', fontSize:13, marginBottom:20}}>{plan.description}</div>
 
                 <div style={{display:'flex', flexDirection:'column', gap:8, marginBottom:24}}>
                   {[
                     ['📦', 'Produtos', plan.features.max_products],
-                    ['⏱️', 'Verifica a cada', plan.features.check_interval],
-                    ['📅', 'Histórico de preços', plan.features.history],
+                    ['⏱️', 'Verificação', plan.features.check_interval],
+                    ['📅', 'Histórico', plan.features.history],
                     ['🔔', 'Alertas Telegram', plan.features.telegram],
                     ['📢', 'Canal promoções', plan.features.promotions],
                     ['🚀', 'Scraping prioritário', plan.features.priority],
@@ -2119,7 +1957,6 @@ function UpgradePage() {
                         color: val === true ? 'var(--green)' : val === false ? 'var(--text-faint)' : 'var(--text)',
                         fontFamily: typeof val === 'string' ? 'var(--font-mono)' : 'inherit',
                         fontSize: typeof val === 'string' ? 12 : 14,
-                        fontWeight: typeof val === 'string' && isPremiumPlan ? 600 : 400,
                       }}>
                         {val === true ? '✓' : val === false ? '✗' : val}
                       </span>
@@ -2134,22 +1971,17 @@ function UpgradePage() {
                     fontSize:13, color:'var(--text-dim)',
                   }}>✓ Plano atual</div>
                 ) : isPremiumPlan ? (
-                  <div>
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => startCheckout(plan.id)}
-                      disabled={checkoutLoading}
-                      style={{fontSize:15}}
-                    >
-                      {checkoutLoading
-                        ? <><div className="spinner"/>Redirecionando...</>
-                        : '⚡ Assinar por R$ 19/mês'
-                      }
-                    </button>
-                    <div style={{textAlign:'center', fontSize:11, color:'var(--text-dim)', marginTop:8}}>
-                      Cancele quando quiser · Sem fidelidade
-                    </div>
-                  </div>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => startCheckout(plan.id)}
+                    disabled={checkoutLoading}
+                    style={{fontSize:15}}
+                  >
+                    {checkoutLoading
+                      ? <><div className="spinner"/>Redirecionando...</>
+                      : '⚡ Assinar por R$ 19/mês'
+                    }
+                  </button>
                 ) : (
                   <div style={{textAlign:'center', fontSize:13, color:'var(--text-dim)', padding:10}}>Gratuito para sempre</div>
                 )}
