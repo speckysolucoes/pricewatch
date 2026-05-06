@@ -44,7 +44,8 @@
 
     /* ─── AUTH PAGES ─────────────────────────────────── */
     .auth-wrap {
-      min-height: 100vh;
+      height: 100vh;
+      overflow: hidden;
       display: grid;
       place-items: center;
       background: var(--bg);
@@ -207,7 +208,7 @@
     /* ─── LAYOUT PRINCIPAL ───────────────────────────── */
     .app-layout {
       display: grid;
-      grid-template-columns: 220px 1fr;
+      grid-template-columns: 200px 1fr;
       min-height: 100vh;
     }
 
@@ -215,7 +216,7 @@
     .sidebar {
       background: var(--bg2);
       border-right: 1px solid var(--border);
-      padding: 28px 16px;
+      padding: 20px 12px;
       display: flex;
       flex-direction: column;
       position: sticky;
@@ -331,8 +332,8 @@
     }
 
     .page-header {
-      padding: 32px 40px 0;
-      margin-bottom: 32px;
+      padding: 24px 28px 0;
+      margin-bottom: 24px;
     }
 
     .page-title {
@@ -348,14 +349,14 @@
       margin-top: 4px;
     }
 
-    .page-body { padding: 0 40px 40px; }
+    .page-body { padding: 0 28px 28px; }
 
     /* ─── STAT CARDS ─────────────────────────────────── */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 32px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
     }
 
     .stat-card {
@@ -730,6 +731,204 @@
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
+
+    /* ═══════════════════════════════════════════════════════
+       RESPONSIVO — MOBILE FIRST
+       Breakpoint: 768px
+    ═══════════════════════════════════════════════════════ */
+
+    /* ── Bottom Navigation Bar (mobile) ─────────────────── */
+    .bottom-nav {
+      display: none;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 64px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      z-index: 50;
+      padding: 0 4px;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .bottom-nav-inner {
+      display: flex;
+      height: 100%;
+      align-items: stretch;
+    }
+
+    .bottom-nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      border: none;
+      background: transparent;
+      color: var(--text-dim);
+      font-size: 10px;
+      font-family: var(--font-body);
+      cursor: pointer;
+      padding: 6px 0;
+      border-radius: 8px;
+      transition: color 0.15s;
+    }
+
+    .bottom-nav-item.active {
+      color: var(--accent);
+    }
+
+    .bottom-nav-item .nav-icon-b {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    /* ── Mobile FAB (botão + Adicionar) ─────────────────── */
+    .fab {
+      display: none;
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      width: 52px; height: 52px;
+      background: var(--accent);
+      border-radius: 50%;
+      border: none;
+      font-size: 24px;
+      color: white;
+      cursor: pointer;
+      z-index: 49;
+      box-shadow: 0 4px 20px rgba(108,92,231,0.5);
+      align-items: center;
+      justify-content: center;
+    }
+
+    @media (max-width: 768px) {
+
+      /* ── Esconde sidebar, mostra bottom nav ──────────── */
+      .sidebar { display: none !important; }
+      .bottom-nav { display: flex; }
+      .fab { display: flex; }
+
+      /* ── Layout vira coluna única ─────────────────────── */
+      .app-layout {
+        grid-template-columns: 1fr;
+        min-height: 100vh;
+      }
+
+      .main {
+        padding-bottom: 72px; /* espaço para bottom nav */
+      }
+
+      /* ── Auth — card ocupa tela toda ─────────────────── */
+      .auth-wrap {
+        height: 100svh; /* svh = respeita barra do browser */
+        padding: 20px 16px;
+        align-items: flex-start;
+        padding-top: 40px;
+      }
+
+      .auth-card {
+        width: 100%;
+        max-width: 100%;
+        padding: 32px 24px;
+        border-radius: var(--radius);
+      }
+
+      /* ── Page header menor ───────────────────────────── */
+      .page-header {
+        padding: 20px 16px 0;
+        margin-bottom: 16px;
+      }
+
+      .page-title { font-size: 22px; }
+      .page-body { padding: 0 16px 16px; }
+
+      /* ── Stats: 2 colunas compactas ──────────────────── */
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      .stat-card { padding: 14px; }
+      .stat-value { font-size: 24px; }
+      .stat-icon { font-size: 16px; margin-bottom: 8px; }
+
+      /* ── Two-col vira coluna única ───────────────────── */
+      .two-col {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      /* ── Cards ───────────────────────────────────────── */
+      .card-header { padding: 14px 16px; }
+      .card-body { padding: 14px 16px; }
+
+      /* ── Produto row simplificado ────────────────────── */
+      .product-row {
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        padding: 14px 16px;
+      }
+
+      /* Esconde badge de status na listagem mobile (mostra no modal) */
+      .product-row .badge { display: none; }
+      /* Esconde discount-tag pequeno */
+      .product-row .discount-tag { display: none; }
+
+      /* ── Modal full-screen no mobile ─────────────────── */
+      .modal-overlay {
+        padding: 0;
+        align-items: flex-end;
+      }
+
+      .modal {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important;
+        padding: 24px 20px !important;
+        max-height: 92svh;
+        overflow-y: auto;
+        padding-bottom: calc(24px + env(safe-area-inset-bottom)) !important;
+      }
+
+      /* ── Formulário de adicionar produto ─────────────── */
+      .two-col.form-cols {
+        grid-template-columns: 1fr 1fr; /* mantém 2 colunas nos campos menores */
+      }
+
+      /* ── Botão de adicionar some (substituído pelo FAB) ─ */
+      .btn-add-desktop { display: none; }
+
+      /* ── Savings banner compacto ─────────────────────── */
+      .savings-banner {
+        padding: 16px;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .savings-amount { font-size: 28px; }
+
+      /* ── Alert items ─────────────────────────────────── */
+      .alert-item { gap: 10px; padding: 12px 0; }
+      .alert-name { font-size: 12px; }
+
+      /* ── Search input padding ────────────────────────── */
+      .form-input { font-size: 16px; } /* evita zoom automático no iOS */
+
+      /* ── Upgrade page: planos em coluna ──────────────── */
+      [data-plans-grid] {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    @media (max-width: 380px) {
+      /* Telas muito pequenas */
+      .stat-value { font-size: 20px; }
+      .page-title { font-size: 20px; }
+      .bottom-nav-item { font-size: 9px; }
+    }
+
   </style>
 </head>
 <body>
@@ -758,11 +957,27 @@ const api = {
   },
 
   async req(method, path, body) {
-    const res = await fetch(`${API_BASE}${path}`, {
-      method,
-      headers: this.headers(),
-      body: body ? JSON.stringify(body) : undefined,
-    });
+    let res;
+    try {
+      res = await fetch(`${API_BASE}${path}`, {
+        method,
+        headers: this.headers(),
+        body: body ? JSON.stringify(body) : undefined,
+      });
+    } catch(e) {
+      throw new Error('Sem conexão com o servidor. Verifique sua internet.');
+    }
+
+    // Verifica se a resposta é JSON antes de parsear
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      // Render retornou HTML (servidor acordando) ou outro erro
+      if (res.status === 503 || res.status === 502) {
+        throw new Error('Servidor iniciando, aguarde 30 segundos e tente novamente.');
+      }
+      throw new Error('Servidor temporariamente indisponível. Recarregue a página.');
+    }
+
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.detail || `Erro ${res.status}`);
     return data;
@@ -785,13 +1000,25 @@ const api = {
     const form = new URLSearchParams();
     form.append('username', email);
     form.append('password', password);
-    const res = await fetch(`${API_BASE}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: form,
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || 'Erro ao fazer login');
+    let res;
+    try {
+      res = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: form,
+      });
+    } catch(e) {
+      throw new Error('Sem conexão com o servidor. Verifique sua internet.');
+    }
+
+    // Detecta servidor acordando (retorna HTML em vez de JSON)
+    const ct = res.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) {
+      throw new Error('Servidor iniciando... Aguarde 30 segundos e tente novamente. 🔄');
+    }
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.detail || 'Email ou senha incorretos.');
     return data;
   },
   me: () => api.get('/auth/me'),
@@ -866,6 +1093,13 @@ function AuthPage({ onAuth }) {
 
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
 
+  // FIX 2: troca de modo preserva email e senha já digitados
+  const switchMode = (newMode) => {
+    setMode(newMode);
+    setError('');
+    // mantém email e senha, só limpa nome se voltar para login
+  };
+
   const submit = async (ev) => {
     ev.preventDefault();
     setError(''); setLoading(true);
@@ -892,13 +1126,30 @@ function AuthPage({ onAuth }) {
         </div>
         <div className="auth-title">{mode === 'login' ? 'Entrar' : 'Criar conta'}</div>
         <div className="auth-sub">
-          {mode === 'login' ? 'Acesse seu painel de monitoramento' : 'Monitore preços e economize'}
+          {mode === 'login'
+            ? 'Monitoramos preços por você e avisamos quando cair.'
+            : 'Crie sua conta grátis e comece a economizar hoje.'}
         </div>
+        {mode === 'login' && (
+          <div style={{display:'flex', gap:6, flexWrap:'wrap', marginBottom:16}}>
+            {[
+              {bg:'rgba(108,92,231,0.12)', border:'rgba(108,92,231,0.3)', color:'#6c5ce7', text:'🔔 Alertas automáticos'},
+              {bg:'rgba(0,217,126,0.1)',   border:'rgba(0,217,126,0.3)',   color:'#00d97e', text:'📦 Amazon + ML'},
+              {bg:'rgba(255,209,102,0.1)', border:'rgba(255,209,102,0.3)', color:'#ffd166', text:'🔗 Link afiliado'},
+            ].map(b => (
+              <span key={b.text} style={{
+                background:b.bg, border:`0.5px solid ${b.border}`,
+                borderRadius:6, padding:'3px 8px', fontSize:11,
+                color:b.color, fontWeight:600,
+              }}>{b.text}</span>
+            ))}
+          </div>
+        )}
         <form onSubmit={submit}>
           {mode === 'register' && (
             <div className="form-group">
               <label className="form-label">Nome</label>
-              <input className="form-input" placeholder="Seu nome" value={form.name} onChange={set('name')} required />
+              <input className="form-input" placeholder="Seu nome" value={form.name} onChange={set('name')} required autoFocus />
             </div>
           )}
           <div className="form-group">
@@ -909,7 +1160,26 @@ function AuthPage({ onAuth }) {
             <label className="form-label">Senha</label>
             <input className="form-input" type="password" placeholder={mode === 'register' ? 'Mínimo 6 caracteres' : '••••••••'} value={form.password} onChange={set('password')} required />
           </div>
-          {error && <div className="error-msg">⚠️ {error}</div>}
+          {error && (
+            <div className="error-msg" style={{lineHeight:1.5}}>
+              ⚠️ {error}
+              {error.includes('30 segundos') && (
+                <div style={{marginTop:8}}>
+                  <button
+                    type="button"
+                    onClick={() => { setError(''); setTimeout(() => document.querySelector('form button[type=submit]')?.click(), 500); }}
+                    style={{
+                      background:'var(--accent)', color:'white', border:'none',
+                      borderRadius:6, padding:'6px 14px', fontSize:12,
+                      cursor:'pointer', marginTop:4
+                    }}
+                  >
+                    🔄 Tentar novamente
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
           <div style={{marginTop: 24}}>
             <button className="btn btn-primary" type="submit" disabled={loading}>
               {loading ? <><div className="spinner" /> Aguarde...</> : (mode === 'login' ? 'Entrar' : 'Criar conta')}
@@ -918,12 +1188,42 @@ function AuthPage({ onAuth }) {
         </form>
         <div className="auth-link">
           {mode === 'login'
-            ? <>Não tem conta? <a onClick={() => { setMode('register'); setError(''); }}>Cadastre-se grátis</a></>
-            : <>Já tem conta? <a onClick={() => { setMode('login'); setError(''); }}>Entrar</a></>
+            ? <>Não tem conta? <a onClick={() => switchMode('register')}>Cadastre-se — é grátis</a></>
+            : <>Já tem conta? <a onClick={() => switchMode('login')}>Entrar</a></>
           }
         </div>
       </div>
     </div>
+  );
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   BOTTOM NAVIGATION (mobile)
+   ═══════════════════════════════════════════════════════════ */
+function BottomNav({ page, setPage }) {
+  const nav = [
+    { id:'dashboard', icon:'📊', label:'Início' },
+    { id:'products',  icon:'📦', label:'Produtos' },
+    { id:'alerts',    icon:'🔔', label:'Alertas' },
+    { id:'savings',   icon:'💰', label:'Economias' },
+    { id:'upgrade',   icon:'⚡', label:'Planos' },
+  ];
+  return (
+    <nav className="bottom-nav">
+      <div className="bottom-nav-inner">
+        {nav.map(n => (
+          <button
+            key={n.id}
+            className={`bottom-nav-item ${page===n.id?'active':''}`}
+            onClick={() => setPage(n.id)}
+          >
+            <span className="nav-icon-b">{n.icon}</span>
+            {n.label}
+          </button>
+        ))}
+      </div>
+    </nav>
   );
 }
 
@@ -1018,13 +1318,55 @@ function DashboardPage() {
     { label:'Economizado', value: `R$${stats.total_saved.toFixed(0)}`, cls:'green', icon:'💚' },
   ];
 
+  // Usuário novo = sem nenhum produto ainda
+  const isNewUser = stats.total_products === 0;
+
   return (
     <div>
       <div className="page-header">
         <div className="page-title">Olá, {user?.name?.split(' ')[0]} 👋</div>
-        <div className="page-sub">Aqui está o resumo do seu monitoramento</div>
+        <div className="page-sub">
+          {isNewUser ? 'Bem-vindo ao PriceWatch!' : 'Aqui está o resumo do seu monitoramento'}
+        </div>
       </div>
       <div className="page-body">
+
+        {/* Banner de onboarding para usuário novo */}
+        {isNewUser && (
+          <div style={{
+            background:'linear-gradient(135deg, rgba(108,92,231,0.12) 0%, rgba(0,217,126,0.08) 100%)',
+            border:'1px solid rgba(108,92,231,0.3)', borderRadius:'var(--radius-lg)',
+            padding:'20px 24px', marginBottom:24,
+          }}>
+            <div style={{fontFamily:'var(--font-head)', fontSize:16, fontWeight:700, color:'var(--text)', marginBottom:8}}>
+              🚀 Como começar em 3 passos
+            </div>
+            <div style={{fontSize:13, color:'var(--text-dim)', lineHeight:1.6, marginBottom:16}}>
+              Cole o link de qualquer produto da Amazon ou Mercado Livre, defina o preço que quer pagar, e a gente avisa quando chegar lá.
+            </div>
+            {[
+              {icon:'1️⃣', bg:'rgba(108,92,231,0.1)', title:'Cole o link do produto', desc:'Amazon, Mercado Livre, Shopee e Magazine Luiza'},
+              {icon:'2️⃣', bg:'rgba(0,217,126,0.1)',   title:'Defina o preço que quer pagar', desc:'Ou avise quando cair X% do preço atual'},
+              {icon:'3️⃣', bg:'rgba(255,209,102,0.1)', title:'Receba o alerta', desc:'No Telegram assim que o preço cair'},
+            ].map(s => (
+              <div key={s.title} style={{display:'flex', gap:12, alignItems:'flex-start', marginBottom:12}}>
+                <div style={{width:32, height:32, borderRadius:10, background:s.bg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, flexShrink:0}}>{s.icon}</div>
+                <div>
+                  <div style={{fontSize:13, fontWeight:600, color:'var(--text)', marginBottom:2}}>{s.title}</div>
+                  <div style={{fontSize:12, color:'var(--text-dim)'}}>{s.desc}</div>
+                </div>
+              </div>
+            ))}
+            <button
+              className="btn btn-primary"
+              style={{marginTop:4}}
+              onClick={() => document.querySelector('.btn-add-desktop')?.click()}
+            >
+              + Adicionar primeiro produto
+            </button>
+          </div>
+        )}
+
         {stats.total_saved > 0 && (
           <div className="savings-banner mb-24">
             <div style={{fontSize:32}}>🎉</div>
@@ -1035,6 +1377,7 @@ function DashboardPage() {
           </div>
         )}
 
+        {!isNewUser && (
         <div className="stats-grid">
           {statusCards.map(c => (
             <div key={c.label} className={`stat-card ${c.cls}`}>
@@ -1044,8 +1387,9 @@ function DashboardPage() {
             </div>
           ))}
         </div>
+        )}
 
-        <div className="two-col">
+        {!isNewUser && <div className="two-col">
           {/* Alertas recentes */}
           <div className="card">
             <div className="card-header">
@@ -1098,6 +1442,8 @@ function DashboardPage() {
             </div>
           </div>
         </div>
+
+        </div>}
 
         {/* Limite do plano */}
         <div className="card">
@@ -1168,28 +1514,46 @@ function AddProductModal({ userId, onClose, onAdded, toast }) {
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal">
-        <div className="modal-title">📦 Adicionar Produto</div>
+        <div className="modal-title">📦 Monitorar produto</div>
+        <div style={{fontSize:13, color:'var(--text-dim)', marginBottom:16, marginTop:-4}}>
+          Cole o link e diga quando quer ser avisado
+        </div>
         <form onSubmit={submit}>
           <div className="form-group">
-            <label className="form-label">Nome do Produto</label>
-            <input className="form-input" placeholder="Ex: Notebook Gamer XYZ" value={form.name} onChange={set('name')} required />
+            <label className="form-label">Nome do produto</label>
+            <input className="form-input" placeholder="Ex: Notebook Gamer, iPhone 16..." value={form.name} onChange={set('name')} required />
           </div>
           <div className="form-group">
-            <label className="form-label">URL do Produto</label>
+            <label className="form-label">Link do produto</label>
             <input className="form-input" type="url" placeholder="https://www.amazon.com.br/dp/..." value={form.url} onChange={set('url')} required />
+            <div style={{fontSize:11, color:'var(--text-dim)', marginTop:4}}>
+              ✅ Amazon, Mercado Livre, Shopee e Magazine Luiza
+            </div>
+          </div>
+          <div style={{
+            background:'var(--bg3)', border:'1px solid var(--border)',
+            borderRadius:'var(--radius)', padding:'10px 14px',
+            fontSize:12, color:'var(--text-dim)', lineHeight:1.5, marginBottom:16,
+          }}>
+            💡 <strong style={{color:'var(--text)'}}>Como pegar o link?</strong> No app da loja, abra o produto, toque em Compartilhar e copie o link.
           </div>
           <div className="two-col" style={{marginBottom:0}}>
             <div className="form-group">
-              <label className="form-label">Preço Alvo (R$)</label>
-              <input className="form-input" type="number" step="0.01" min="0.01" placeholder="299,90" value={form.target_price} onChange={set('target_price')} />
+              <label className="form-label">Me avisa quando chegar em</label>
+              <input className="form-input" type="number" step="0.01" min="0.01" placeholder="R$ 0,00" value={form.target_price} onChange={set('target_price')} />
+              <div style={{fontSize:11, color:'var(--text-dim)', marginTop:4, lineHeight:1.4}}>Ex: produto custa R$ 3.499, você quer pagar R$ 2.999</div>
             </div>
             <div className="form-group">
-              <label className="form-label">Alerta por Queda (%)</label>
-              <input className="form-input" type="number" min="1" max="100" placeholder="15" value={form.alert_percentage} onChange={set('alert_percentage')} />
+              <label className="form-label">Ou se cair mais de</label>
+              <div style={{display:'flex', gap:6, alignItems:'center'}}>
+                <input className="form-input" type="number" min="1" max="100" placeholder="0" value={form.alert_percentage} onChange={set('alert_percentage')} style={{flex:1}} />
+                <span style={{fontSize:14, color:'var(--text-dim)', fontWeight:600, flexShrink:0}}>%</span>
+              </div>
+              <div style={{fontSize:11, color:'var(--text-dim)', marginTop:4, lineHeight:1.4}}>Ex: 15 = avisa quando cair 15%</div>
             </div>
           </div>
-          <div style={{fontSize:12, color:'var(--text-dim)', marginTop:-8, marginBottom:16}}>
-            💡 Use preço alvo <strong>ou</strong> percentual — ou ambos!
+          <div style={{fontSize:12, color:'var(--text-dim)', marginTop:4, marginBottom:16}}>
+            Pode usar os dois juntos!
           </div>
           {error && <div className="error-msg">⚠️ {error}</div>}
           <div className="modal-actions">
@@ -1210,6 +1574,13 @@ function AddProductModal({ userId, onClose, onAdded, toast }) {
 function ProductDetailModal({ product, onClose, onRemove, toast }) {
   const [history, setHistory] = useState([]);
   const [checking, setChecking] = useState(false);
+
+  // FIX 6: fechar com ESC
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
 
   useEffect(() => {
     api.priceHistory(product.id, 30).then(setHistory).catch(() => {});
@@ -1240,7 +1611,9 @@ function ProductDetailModal({ product, onClose, onRemove, toast }) {
               {product.store && <span style={{fontSize:11, color:'var(--text-dim)', textTransform:'uppercase'}}>{product.store}</span>}
             </div>
           </div>
-          <button className="btn btn-ghost btn-icon" onClick={onClose}>✕</button>
+          <button className="btn btn-ghost btn-sm" onClick={onClose} style={{display:'flex', alignItems:'center', gap:6, flexShrink:0}}>
+            ← Voltar
+          </button>
         </div>
 
         <div style={{display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, marginBottom:20}}>
@@ -1320,7 +1693,7 @@ function ProductsPage() {
             <div className="page-title">Meus Produtos</div>
             <div className="page-sub">{products.length} produto{products.length !== 1 ? 's' : ''} monitorado{products.length !== 1 ? 's' : ''}</div>
           </div>
-          <button className="btn btn-primary" style={{width:'auto'}} onClick={() => setShowAdd(true)}>
+          <button className="btn btn-primary btn-add-desktop" style={{width:'auto'}} onClick={() => setShowAdd(true)}>
             + Adicionar
           </button>
         </div>
@@ -1338,31 +1711,79 @@ function ProductsPage() {
               <div className="empty-title">{search ? 'Nenhum resultado' : 'Nenhum produto ainda'}</div>
               <div className="empty-sub">{search ? 'Tente outro termo' : 'Clique em "+ Adicionar" para começar'}</div>
             </div>
-          : <div className="card">
-              <div className="product-list">
-                {filtered.map((p, i) => {
-                  const status = typeof p.status === 'string' ? p.status : String(p.status).split('.').pop().toLowerCase();
-                  const discPct = p.initial_price && p.current_price
-                    ? ((1 - p.current_price/p.initial_price)*100).toFixed(1)
-                    : null;
-                  return (
-                    <div key={p.id} className="product-row" style={{borderBottom: i<filtered.length-1 ? '1px solid var(--border)' : 'none'}}
-                      onClick={() => setSelected(p)}>
-                      <div style={{minWidth:0}}>
-                        <div className="product-name">{storeEmoji(p.store)} {p.name}</div>
-                        <div className="product-store">{p.store || 'desconhecida'} · ID {p.id}</div>
-                      </div>
-                      <div style={{textAlign:'right'}}>
-                        <div className="price-current">{fmtPrice(p.current_price)}</div>
-                        {p.target_price && <div className="price-target">alvo {fmtPrice(p.target_price)}</div>}
-                      </div>
-                      {discPct && Number(discPct) > 0 && (
-                        <div className="discount-tag">-{discPct}%</div>
-                      )}
+          : <div>
+              {/* Cards de atenção para status especiais */}
+              {filtered.filter(p => {
+                const s = typeof p.status === 'string' ? p.status : String(p.status).split('.').pop().toLowerCase();
+                return s === 'alerted' || s === 'error';
+              }).map(p => {
+                const status = typeof p.status === 'string' ? p.status : String(p.status).split('.').pop().toLowerCase();
+                const isAlerted = status === 'alerted';
+                return (
+                  <div key={`special-${p.id}`} style={{
+                    background: isAlerted ? 'rgba(255,209,102,0.06)' : 'rgba(255,77,106,0.06)',
+                    border: `1px solid ${isAlerted ? 'rgba(255,209,102,0.3)' : 'rgba(255,77,106,0.3)'}`,
+                    borderRadius:'var(--radius-lg)', padding:'14px 18px', marginBottom:10,
+                  }}>
+                    <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:6}}>
+                      <div style={{fontSize:13, fontWeight:600, color:'var(--text)'}}>{storeEmoji(p.store)} {p.name.slice(0,45)}{p.name.length > 45 ? '…' : ''}</div>
                       {statusBadge(status)}
                     </div>
-                  );
-                })}
+                    <div style={{fontSize:12, color:'var(--text-dim)', marginBottom:10, lineHeight:1.5}}>
+                      {isAlerted
+                        ? 'Preço alvo atingido! Aproveite enquanto está barato.'
+                        : 'Não conseguimos acessar este produto. Pode ter saído de estoque ou o link mudou.'}
+                    </div>
+                    <div style={{display:'flex', gap:8}}>
+                      {isAlerted && p.url_affiliate && (
+                        <a href={p.url_affiliate} target="_blank" rel="noopener noreferrer"
+                          style={{flex:1, background:'var(--yellow)', color:'#0a0a0f', borderRadius:'var(--radius)', padding:'7px 12px', textAlign:'center', fontSize:12, fontWeight:600, textDecoration:'none'}}>
+                          Ver produto →
+                        </a>
+                      )}
+                      <button
+                        onClick={async () => {
+                          try {
+                            await api.req('POST', `/products/${p.id}/reactivate`);
+                            load();
+                            toast('Produto reativado!', 'success');
+                          } catch(e) { toast(e.message, 'error'); }
+                        }}
+                        style={{background:'var(--bg3)', color:'var(--text-dim)', border:'1px solid var(--border)', borderRadius:'var(--radius)', padding:'7px 14px', fontSize:12, cursor:'pointer', ...(isAlerted ? {} : {flex:1})}}>
+                        {isAlerted ? 'Reativar' : '🔄 Tentar novamente'}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Lista normal */}
+              <div className="card">
+                <div className="product-list">
+                  {filtered.map((p, i) => {
+                    const status = typeof p.status === 'string' ? p.status : String(p.status).split('.').pop().toLowerCase();
+                    const discPct = p.initial_price && p.current_price
+                      ? ((1 - p.current_price/p.initial_price)*100).toFixed(1)
+                      : null;
+                    return (
+                      <div key={p.id} className="product-row" style={{borderBottom: i<filtered.length-1 ? '1px solid var(--border)' : 'none'}}
+                        onClick={() => setSelected(p)}>
+                        <div style={{minWidth:0}}>
+                          <div className="product-name">{storeEmoji(p.store)} {p.name}</div>
+                          <div className="product-store">{p.store || 'desconhecida'} · ID {p.id}</div>
+                        </div>
+                        <div style={{textAlign:'right'}}>
+                          <div className="price-current">{fmtPrice(p.current_price)}</div>
+                          {p.target_price && <div className="price-target">alvo {fmtPrice(p.target_price)}</div>}
+                        </div>
+                        {discPct && Number(discPct) > 0 && (
+                          <div className="discount-tag">-{discPct}%</div>
+                        )}
+                        {statusBadge(status)}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
         }
@@ -1388,17 +1809,44 @@ function AlertsPage() {
   return (
     <div>
       <div className="page-header">
-        <div className="page-title">Histórico de Alertas</div>
-        <div className="page-sub">Todos os alertas disparados</div>
+        <div className="page-title">Alertas</div>
+        <div className="page-sub">Quando o preço caiu, você foi avisado aqui</div>
       </div>
       <div className="page-body">
         {loading
           ? <div className="loading"><div className="spinner"/>Carregando...</div>
           : alerts.length === 0
-          ? <div className="empty">
-              <div className="empty-icon">🔕</div>
-              <div className="empty-title">Nenhum alerta ainda</div>
-              <div className="empty-sub">Adicione produtos e configure preços alvo</div>
+          ? <div>
+              <div className="empty">
+                <div className="empty-icon">🔕</div>
+                <div className="empty-title">Nenhum alerta ainda</div>
+                <div className="empty-sub" style={{maxWidth:320, margin:'0 auto 16px', lineHeight:1.6}}>
+                  Os alertas aparecem aqui quando um produto cair abaixo do preço que você definiu. Quanto mais produtos monitorar, mais chances de pegar uma oferta real.
+                </div>
+                <button className="btn btn-primary" style={{display:'inline-flex', width:'auto', margin:'0 auto'}}
+                  onClick={() => { const b = document.querySelector('.btn-add-desktop'); if(b) b.click(); }}>
+                  + Adicionar produto
+                </button>
+              </div>
+              {/* Exemplo visual de como um alerta aparece */}
+              <div style={{marginTop:24, opacity:0.4, pointerEvents:'none'}}>
+                <div style={{fontSize:11, color:'var(--text-dim)', textAlign:'center', marginBottom:8, fontStyle:'italic'}}>Exemplo de como vai aparecer:</div>
+                <div className="card">
+                  <div className="card-body">
+                    <div className="alert-item">
+                      <div className="alert-icon drop">📉</div>
+                      <div style={{flex:1}}>
+                        <div className="alert-name">iPhone 16e 128GB Preto</div>
+                        <div className="alert-meta">Hoje · Preço alvo atingido</div>
+                      </div>
+                      <div className="alert-price">
+                        <div className="new">{fmtPrice(2999)}</div>
+                        <div className="old">{fmtPrice(3499)}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           : <div className="card">
               <div className="card-body">
@@ -1558,7 +2006,11 @@ function UpgradePage() {
     <div>
       <div className="page-header">
         <div className="page-title">⚡ Planos</div>
-        <div className="page-sub">Escolha o plano ideal para você</div>
+        <div className="page-sub">
+          {billing
+            ? `Você está usando ${billing.current_product_count} de ${billing.max_products === 9999 ? '∞' : billing.max_products} produtos do plano ${billing.current_plan}`
+            : 'Escolha o plano ideal para você'}
+        </div>
       </div>
       <div className="page-body">
 
@@ -1585,6 +2037,31 @@ function UpgradePage() {
             <button className="btn btn-danger btn-sm" onClick={cancelPlan} disabled={cancelling}>
               {cancelling ? <><div className="spinner"/>...</> : 'Cancelar'}
             </button>
+          </div>
+        )}
+
+        {/* Barra de progresso do limite */}
+        {billing && billing.current_plan === 'free' && billing.max_products !== 9999 && (
+          <div style={{marginBottom:20}}>
+            <div style={{display:'flex', justifyContent:'space-between', fontSize:12, color:'var(--text-dim)', marginBottom:6}}>
+              <span>Limite do plano gratuito</span>
+              <span style={{fontWeight:600, color: billing.current_product_count >= billing.max_products ? 'var(--red)' : 'var(--text)'}}>
+                {billing.current_product_count} / {billing.max_products}
+              </span>
+            </div>
+            <div style={{height:6, background:'var(--bg3)', borderRadius:3, overflow:'hidden'}}>
+              <div style={{
+                height:'100%',
+                width:`${Math.min((billing.current_product_count / billing.max_products) * 100, 100)}%`,
+                background: billing.current_product_count >= billing.max_products ? 'var(--red)' : 'var(--accent)',
+                borderRadius:3, transition:'width 0.5s ease',
+              }} />
+            </div>
+            {billing.current_product_count >= billing.max_products && (
+              <div style={{fontSize:12, color:'var(--red)', marginTop:6}}>
+                ⚠️ Limite atingido. Faça upgrade para adicionar mais produtos.
+              </div>
+            )}
           </div>
         )}
 
@@ -1617,13 +2094,19 @@ function UpgradePage() {
                   {plan.price.brl}
                   {plan.price.brl_raw > 0 && <span style={{fontSize:14, color:'var(--text-dim)', fontWeight:400}}>/mês</span>}
                 </div>
-                <div style={{color:'var(--text-dim)', fontSize:13, marginBottom:20}}>{plan.description}</div>
+                <div style={{color:'var(--text-dim)', fontSize:13, marginBottom: isPremiumPlan ? 8 : 20}}>{plan.description}</div>
+
+                {isPremiumPlan && (
+                  <div style={{fontSize:12, color:'var(--text-dim)', marginBottom:16, lineHeight:1.5, background:'var(--bg3)', borderRadius:'var(--radius)', padding:'10px 14px'}}>
+                    💡 Se você economizar <strong style={{color:'var(--text)'}}>R$ 200 em uma compra</strong>, já pagou 10 meses de assinatura.
+                  </div>
+                )}
 
                 <div style={{display:'flex', flexDirection:'column', gap:8, marginBottom:24}}>
                   {[
                     ['📦', 'Produtos', plan.features.max_products],
-                    ['⏱️', 'Verificação', plan.features.check_interval],
-                    ['📅', 'Histórico', plan.features.history],
+                    ['⏱️', 'Verifica a cada', plan.features.check_interval],
+                    ['📅', 'Histórico de preços', plan.features.history],
                     ['🔔', 'Alertas Telegram', plan.features.telegram],
                     ['📢', 'Canal promoções', plan.features.promotions],
                     ['🚀', 'Scraping prioritário', plan.features.priority],
@@ -1636,6 +2119,7 @@ function UpgradePage() {
                         color: val === true ? 'var(--green)' : val === false ? 'var(--text-faint)' : 'var(--text)',
                         fontFamily: typeof val === 'string' ? 'var(--font-mono)' : 'inherit',
                         fontSize: typeof val === 'string' ? 12 : 14,
+                        fontWeight: typeof val === 'string' && isPremiumPlan ? 600 : 400,
                       }}>
                         {val === true ? '✓' : val === false ? '✗' : val}
                       </span>
@@ -1650,17 +2134,22 @@ function UpgradePage() {
                     fontSize:13, color:'var(--text-dim)',
                   }}>✓ Plano atual</div>
                 ) : isPremiumPlan ? (
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => startCheckout(plan.id)}
-                    disabled={checkoutLoading}
-                    style={{fontSize:15}}
-                  >
-                    {checkoutLoading
-                      ? <><div className="spinner"/>Redirecionando...</>
-                      : '⚡ Assinar Premium'
-                    }
-                  </button>
+                  <div>
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => startCheckout(plan.id)}
+                      disabled={checkoutLoading}
+                      style={{fontSize:15}}
+                    >
+                      {checkoutLoading
+                        ? <><div className="spinner"/>Redirecionando...</>
+                        : '⚡ Assinar por R$ 19/mês'
+                      }
+                    </button>
+                    <div style={{textAlign:'center', fontSize:11, color:'var(--text-dim)', marginTop:8}}>
+                      Cancele quando quiser · Sem fidelidade
+                    </div>
+                  </div>
                 ) : (
                   <div style={{textAlign:'center', fontSize:13, color:'var(--text-dim)', padding:10}}>Gratuito para sempre</div>
                 )}
@@ -1768,6 +2257,19 @@ function App() {
         <Sidebar page={page} setPage={setPage} user={user} onLogout={logout} />
         <main className="main">{pages[page]}</main>
       </div>
+      <BottomNav page={page} setPage={setPage} />
+      {page === 'products' && (
+        <button
+          className="fab"
+          onClick={() => {
+            // dispara clique no botão escondido de adicionar
+            const btn = document.querySelector('.btn-add-desktop');
+            if (btn) btn.click();
+            else setPage('products');
+          }}
+          title="Adicionar produto"
+        >+</button>
+      )}
       <Toasts toasts={toasts} />
     </AppCtx.Provider>
   );
